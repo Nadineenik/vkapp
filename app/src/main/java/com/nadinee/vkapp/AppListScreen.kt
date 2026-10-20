@@ -1,47 +1,44 @@
 package com.nadinee.vkapp
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Android
-import androidx.compose.material.icons.filled.Apps
-import androidx.compose.material.icons.filled.Gamepad
-import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nadinee.vkapp.data.AppInfo
+import com.nadinee.vkapp.presentation.applistscreen.AppListEvent
+import com.nadinee.vkapp.presentation.applistscreen.AppListState
+import com.nadinee.vkapp.presentation.applistscreen.AppListViewModel
+import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppListScreen(
-    onAppClick: (AppInfo) -> Unit
+    onAppClick: (AppInfo) -> Unit,
+    viewModel: AppListViewModel = viewModel()
 ) {
-    // Захардкоженные данные
-    val apps = listOf(
-        AppInfo(
-            Icons.Default.Android,
-            "VK App",
-            "Официальное приложение ВКонтакте",
-            "Социальные сети"
-        ),
-        AppInfo(Icons.Default.Gamepad, "Игровой центр", "Лучшие игры в одном месте", "Игры"),
-        AppInfo(Icons.Default.MusicNote, "VK Музыка", "Слушайте музыку и подкасты", "Музыка"),
-        AppInfo(Icons.Default.Apps, "Магазин", "Приложения и утилиты", "Инструменты")
-    )
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    // Scaffold задает базовую структуру экрана (тулбар, контент)
+    // Обработка событий (Snackbar)
+    ObserveEvents(viewModel.events, snackbarHostState)
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text(text = "Мои приложения", color = MaterialTheme.colorScheme.onPrimary) },
                 navigationIcon = {
-                    // Иконка текущего приложения слева
                     Icon(
                         imageVector = Icons.Default.Android,
                         contentDescription = "Иконка приложения",
@@ -50,35 +47,64 @@ fun AppListScreen(
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    // Акцентный цвет задника (берем primary из темы)
                     containerColor = MaterialTheme.colorScheme.primary
                 )
             )
         }
     ) { paddingValues ->
-        // LazyColumn для вертикального списка
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(apps) { app ->
-                AppListItem(app = app, onClick = { onAppClick(app) })
+        when (val currentState = state) {
+            is AppListState.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+            is AppListState.Content -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize().padding(paddingValues),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(currentState.apps) { app ->
+                        AppListItem(
+                            app = app,
+                            onClick = { onAppClick(app) },
+                            onLogoTap = { viewModel.clickLogo() }
+                        )
+                    }
+                }
             }
         }
     }
 }
 
-// Отдельный компонент для одного элемента списка
+// Отдельная функция для обработки событий
+@Composable
+private fun ObserveEvents(
+    events: Flow<AppListEvent>,
+    snackbarHostState: SnackbarHostState
+) {
+    LaunchedEffect(Unit) {
+        events.collect { event ->
+            when (event) {
+                AppListEvent.Error -> snackbarHostState.showSnackbar("Произошла ошибка")
+                AppListEvent.LogoClicked -> snackbarHostState.showSnackbar("Вы нажали на логотип приложения")
+            }
+        }
+    }
+}
+
+// Карточка приложения
 @Composable
 fun AppListItem(
     app: AppInfo,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onLogoTap: () -> Unit
 ) {
     Card(
-        onClick = onClick,
+        onClick = onClick, // Клик по всей карточке ведет на экран деталей
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -88,28 +114,21 @@ fun AppListItem(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Иконка приложения
+            // Иконка (Логотип) - при клике показывает Snackbar
             Icon(
                 imageVector = app.icon,
                 contentDescription = null,
-                modifier = Modifier.size(48.dp),
+                modifier = Modifier
+                    .size(48.dp)
+                    .clickable { onLogoTap() }, // Перехватываем клик
                 tint = MaterialTheme.colorScheme.primary
             )
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Текстовые данные
             Column {
-                Text(
-                    text = app.name,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
-                )
-                Text(
-                    text = app.description,
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Text(text = app.name, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text(text = app.description, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text(
                     text = "Категория: ${app.category}",
                     fontSize = 12.sp,

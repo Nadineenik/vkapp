@@ -15,4 +15,6 @@
     <string name="error_invalid_phone">Введите корректный номер телефона</string>
     <string name="error_no_dialer">Приложение для звонков не найдено</string>
     <string name="chooser_title">Поделиться через…</string>
+    <string name="error">Произошла ошибка</string>
+    <string name="logo_clicked">Вы нажали на логотип приложения</string>
 </resources>

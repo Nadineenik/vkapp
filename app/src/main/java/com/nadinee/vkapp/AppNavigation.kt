@@ -14,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.nadinee.vkapp.data.AppInfo
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 
 @Composable
 fun AppNavigation() {
@@ -44,6 +45,14 @@ fun AppNavigation() {
                 }
             )
         }
+
+        composable("app_list") {
+            AppListScreen(
+                onAppClick = { app ->
+                    navController.navigate("app_details/${app.name}")
+                }
+            )
+        }
     }
 }
 
@@ -61,7 +70,7 @@ fun AppDetailsScreen(
                 title = { Text(appName) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Назад")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
                     }
                 }
             )
