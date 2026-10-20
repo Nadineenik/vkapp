@@ -14,17 +14,24 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+//        setContent {
+//            VkappTheme {
+//                Surface(color = MaterialTheme.colorScheme.background) {
+//                    FirstScreen(
+//                        onOpenSecond = { text ->
+//                            val intent = Intent(this, SecondActivity::class.java).apply {
+//                                putExtra(SecondActivity.EXTRA_TEXT, text)
+//                            }
+//                            startActivity(intent)
+//                        }
+//                    )
+//                }
+//            }
+//        }
         setContent {
             VkappTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
-                    FirstScreen(
-                        onOpenSecond = { text ->
-                            val intent = Intent(this, SecondActivity::class.java).apply {
-                                putExtra(SecondActivity.EXTRA_TEXT, text)
-                            }
-                            startActivity(intent)
-                        }
-                    )
+                    AppNavigation()
                 }
             }
         }

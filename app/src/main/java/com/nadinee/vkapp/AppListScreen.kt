@@ -19,7 +19,9 @@ import com.nadinee.vkapp.data.AppInfo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppListScreen() {
+fun AppListScreen(
+    onAppClick: (AppInfo) -> Unit
+) {
     // Захардкоженные данные
     val apps = listOf(
         AppInfo(
@@ -63,7 +65,7 @@ fun AppListScreen() {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(apps) { app ->
-                AppListItem(app)
+                AppListItem(app = app, onClick = { onAppClick(app) })
             }
         }
     }
@@ -71,8 +73,12 @@ fun AppListScreen() {
 
 // Отдельный компонент для одного элемента списка
 @Composable
-fun AppListItem(app: AppInfo) {
+fun AppListItem(
+    app: AppInfo,
+    onClick: () -> Unit
+) {
     Card(
+        onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
