@@ -23,8 +23,8 @@
         <activity
             android:name=".SecondActivity"
             android:exported="false"
-            android:parentActivityName=".MainActivity"
-            android:label="@string/second_screen_title" />
+            android:label="@string/second_screen_title"
+            android:parentActivityName=".MainActivity" />
 
     </application>
 

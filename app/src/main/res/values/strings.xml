@@ -1,18 +1,18 @@
 <resources>
-<string name="app_name">vkapp</string>
+    <string name="app_name">vkapp</string>
 
-<string name="second_screen_title">Второй экран</string>
+    <string name="second_screen_title">Второй экран</string>
 
-<string name="hint_input">Введите текст или номер телефона</string>
+    <string name="hint_input">Введите текст или номер телефона</string>
 
-<string name="btn_open_second">Открыть вторую Activity</string>
-<string name="btn_call_friend">Позвонить другу</string>
-<string name="btn_share_text">Поделиться текстом</string>
-<string name="btn_back">Назад</string>
+    <string name="btn_open_second">Открыть вторую Activity</string>
+    <string name="btn_call_friend">Позвонить другу</string>
+    <string name="btn_share_text">Поделиться текстом</string>
+    <string name="btn_back">Назад</string>
 
-<string name="no_text">Текст не передан</string>
-<string name="error_empty">Поле не может быть пустым</string>
-<string name="error_invalid_phone">Введите корректный номер телефона</string>
-<string name="error_no_dialer">Приложение для звонков не найдено</string>
-<string name="chooser_title">Поделиться через…</string>
+    <string name="no_text">Текст не передан</string>
+    <string name="error_empty">Поле не может быть пустым</string>
+    <string name="error_invalid_phone">Введите корректный номер телефона</string>
+    <string name="error_no_dialer">Приложение для звонков не найдено</string>
+    <string name="chooser_title">Поделиться через…</string>
 </resources>
