@@ -7,13 +7,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.nadinee.vkapp.AppListItem
-import com.nadinee.vkapp.data.AppInfo
 import com.nadinee.vkapp.data.showcasePages
+import com.nadinee.vkapp.presentation.model.UiAppInfo
 
 @Composable
 fun ShowcasePager(
-    onAppClick: (AppInfo) -> Unit,
+    onAppClick: (UiAppInfo) -> Unit, // ИСПРАВЛЕНО: используем UiAppInfo
     modifier: Modifier = Modifier
 ) {
     val pagerState = rememberPagerState(pageCount = { 3 })
@@ -37,7 +36,7 @@ fun ShowcasePager(
                     AppListItem(
                         app = app,
                         onClick = { onAppClick(app) },
-                        onLogoTap = { /* В витрине клик по логотипу игнорируем */ }
+                        onLogoTap = { /* Игнорируем клик по логотипу на витрине */ } // ИСПРАВЛЕНО: добавлен параметр
                     )
                 }
             }

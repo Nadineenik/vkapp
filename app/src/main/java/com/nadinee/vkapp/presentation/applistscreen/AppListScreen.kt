@@ -15,15 +15,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.nadinee.vkapp.data.AppInfo
+import com.nadinee.vkapp.presentation.model.UiAppInfo // ПРАВИЛЬНЫЙ ИМПОРТ
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppListScreen(
-    onAppClick: (AppInfo) -> Unit,
-    viewModel: AppListViewModel = viewModel()
+    onAppClick: (UiAppInfo) -> Unit,
+    viewModel: AppListViewModel = viewModel(factory = ViewModelFactory())
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -42,7 +42,7 @@ fun AppListScreen(
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier
                             .padding(start = 16.dp, end = 8.dp)
-                            .clickable { viewModel.clickLogo() } // Клик по логотипу в тулбаре
+                            .clickable { viewModel.clickLogo() }
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -70,7 +70,7 @@ fun AppListScreen(
                         AppListItem(
                             app = app,
                             onClick = { onAppClick(app) },
-                            onLogoTap = { viewModel.clickLogo() } // Клик по логотипу в карточке
+                            onLogoTap = { viewModel.clickLogo() }
                         )
                     }
                 }
@@ -97,12 +97,12 @@ private fun ObserveEvents(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppListItem(
-    app: AppInfo,
+    app: UiAppInfo, // Используем UiAppInfo
     onClick: () -> Unit,
     onLogoTap: () -> Unit
 ) {
     Card(
-        onClick = onClick, // Клик по всей карточке
+        onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -115,7 +115,7 @@ fun AppListItem(
                 contentDescription = null,
                 modifier = Modifier
                     .size(48.dp)
-                    .clickable { onLogoTap() }, // Клик строго по иконке
+                    .clickable { onLogoTap() },
                 tint = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.width(16.dp))
