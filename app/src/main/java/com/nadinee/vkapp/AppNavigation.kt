@@ -14,7 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import com.nadinee.vkapp.presentation.applistscreen.AppListScreen
 import com.nadinee.vkapp.presentation.applistscreen.ShowcasePager
-import com.nadinee.vkapp.presentation.model.UiAppInfo // ИСПРАВЛЕНО
+import com.nadinee.vkapp.presentation.model.UiAppInfo
 
 @Composable
 fun AppNavigation() {

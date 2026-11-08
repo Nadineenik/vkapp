@@ -15,17 +15,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.nadinee.vkapp.data.AppInfo
+import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import com.nadinee.vkapp.presentation.applistscreen.AppListEvent
 import com.nadinee.vkapp.presentation.applistscreen.AppListState
 import com.nadinee.vkapp.presentation.applistscreen.AppListViewModel
+import com.nadinee.vkapp.presentation.model.UiAppInfo
 import kotlinx.coroutines.flow.Flow
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppListScreen(
-    onAppClick: (AppInfo) -> Unit,
-    viewModel: AppListViewModel = viewModel()
+    onAppClick: (UiAppInfo) -> Unit,
+    viewModel: AppListViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -70,7 +74,7 @@ fun AppListScreen(
                     items(currentState.apps) { app ->
                         AppListItem(
                             app = app,
-                            onClick = { onAppClick(app) },
+                            onClick = { onAppClick(app) }, // Теперь типы совпадают
                             onLogoTap = { viewModel.clickLogo() }
                         )
                     }
@@ -99,42 +103,35 @@ private fun ObserveEvents(
 // Карточка приложения
 @Composable
 fun AppListItem(
-    app: AppInfo,
+    app: UiAppInfo,
     onClick: () -> Unit,
     onLogoTap: () -> Unit
 ) {
     Card(
-        onClick = onClick, // Клик по всей карточке ведет на экран деталей
+        onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
+            modifier = Modifier.padding(16.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Иконка (Логотип) - при клике показывает Snackbar
-            Icon(
-                imageVector = app.icon,
+            // Используем AsyncImage для загрузки по ссылке
+            AsyncImage(
+                model = app.iconUrl, // Ссылка из сети
                 contentDescription = null,
                 modifier = Modifier
                     .size(48.dp)
-                    .clickable { onLogoTap() }, // Перехватываем клик
-                tint = MaterialTheme.colorScheme.primary
+                    .clickable { onLogoTap() },
+                contentScale = ContentScale.Crop,
+                error = painterResource(id = android.R.drawable.ic_menu_report_image)
             )
 
             Spacer(modifier = Modifier.width(16.dp))
-
             Column {
                 Text(text = app.name, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 Text(text = app.description, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(
-                    text = "Категория: ${app.category}",
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.secondary,
-                    fontWeight = FontWeight.Medium
-                )
+                Text(text = "Категория: ${app.category}", fontSize = 12.sp, color = MaterialTheme.colorScheme.secondary, fontWeight = FontWeight.Medium)
             }
         }
     }

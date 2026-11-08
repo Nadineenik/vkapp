@@ -5,5 +5,5 @@ data class DomainAppInfo(
     val name: String,
     val description: String,
     val category: String,
-    val iconId: String
+    val iconUrl: String?
 )

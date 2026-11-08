@@ -6,5 +6,6 @@ data class AppInfo(
     val icon: ImageVector,
     val name: String,
     val description: String,
-    val category: String
+    val category: String,
+    val iconUrl: String?
 )
