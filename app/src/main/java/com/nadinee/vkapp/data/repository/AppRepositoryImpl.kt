@@ -5,9 +5,11 @@ import com.nadinee.vkapp.data.mapper.toDomain
 import com.nadinee.vkapp.domain.model.DomainAppInfo
 import com.nadinee.vkapp.domain.repository.AppRepository
 import kotlinx.coroutines.delay
+import javax.inject.Inject
 
-class AppRepositoryImpl : AppRepository {
+class AppRepositoryImpl @Inject constructor() : AppRepository {
     override suspend fun getApps(): List<DomainAppInfo> {
+
         delay(1000) // Имитация загрузки из сети
 
         // Тот самый хардкод, который мы перенесли из ViewModel

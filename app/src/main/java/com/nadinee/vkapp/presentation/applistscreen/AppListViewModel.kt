@@ -10,9 +10,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class AppListViewModel(
-    private val getAppsUseCase: GetAppsUseCase // Внедряем UseCase
+@HiltViewModel
+class AppListViewModel @Inject constructor(
+    private val getAppsUseCase: GetAppsUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<AppListState>(AppListState.Loading)

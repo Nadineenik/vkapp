@@ -15,15 +15,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.nadinee.vkapp.presentation.model.UiAppInfo // ПРАВИЛЬНЫЙ ИМПОРТ
+import com.nadinee.vkapp.presentation.model.UiAppInfo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppListScreen(
     onAppClick: (UiAppInfo) -> Unit,
-    viewModel: AppListViewModel = viewModel(factory = ViewModelFactory())
+    viewModel: AppListViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
