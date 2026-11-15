@@ -10,15 +10,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.nadinee.vkapp.presentation.model.UiAppInfo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
-import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,6 +77,15 @@ fun AppListScreen(
                     }
                 }
             }
+
+            is AppListState.Error -> {
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "Ошибка загрузки данных", color = MaterialTheme.colorScheme.error)
+                }
+            }
         }
     }
 }
@@ -98,7 +108,7 @@ private fun ObserveEvents(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppListItem(
-    app: UiAppInfo, // Используем UiAppInfo
+    app: UiAppInfo,
     onClick: () -> Unit,
     onLogoTap: () -> Unit
 ) {
@@ -111,13 +121,14 @@ fun AppListItem(
             modifier = Modifier.padding(16.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = app.icon,
+
+            AsyncImage(
+                model = app.iconUrl,
                 contentDescription = null,
                 modifier = Modifier
                     .size(48.dp)
                     .clickable { onLogoTap() },
-                tint = MaterialTheme.colorScheme.primary
+                contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column {

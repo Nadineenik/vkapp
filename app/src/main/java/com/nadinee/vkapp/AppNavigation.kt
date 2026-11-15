@@ -12,8 +12,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nadinee.vkapp.presentation.applistscreen.AppListScreen
 import com.nadinee.vkapp.presentation.applistscreen.ShowcasePager
+import com.nadinee.vkapp.presentation.details.AppDetailsState
+import com.nadinee.vkapp.presentation.details.AppDetailsViewModel
+import com.nadinee.vkapp.presentation.details.InstallState
 import com.nadinee.vkapp.presentation.model.UiAppInfo
 
 @Composable
@@ -21,7 +29,7 @@ fun AppNavigation() {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "app_list") {
-        // Экран списка приложений
+
         composable("app_list") {
             AppListScreen(
                 onAppClick = { app ->
@@ -30,7 +38,7 @@ fun AppNavigation() {
             )
         }
 
-        // Экран карточки приложения
+
         composable("app_details/{appName}") { backStackEntry ->
             val appName = backStackEntry.arguments?.getString("appName") ?: ""
             AppDetailsScreen(
@@ -44,7 +52,7 @@ fun AppNavigation() {
             )
         }
 
-        // УДАЛЕН ДУБЛИРУЮЩИЙСЯ БЛОК composable("app_list")
+
     }
 }
 
@@ -53,8 +61,15 @@ fun AppNavigation() {
 fun AppDetailsScreen(
     appName: String,
     onBackClick: () -> Unit,
-    onShowcaseAppClick: (UiAppInfo) -> Unit // ИСПРАВЛЕНО: используем UiAppInfo
+    onShowcaseAppClick: (UiAppInfo) -> Unit,
+    viewModel: AppDetailsViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(appName) {
+        viewModel.loadDetails(appName)
+    }
+
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -67,24 +82,57 @@ fun AppDetailsScreen(
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-        ) {
-            Text(
-                text = "Описание приложения $appName",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(16.dp)
-            )
+        when (val currentState = state) {
+            is AppDetailsState.Loading -> {
+                Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+            is AppDetailsState.Content -> {
+                Column(
+                    modifier = Modifier
+                        .padding(padding)
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Text(
+                        text = "Описание приложения ${currentState.appName}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(16.dp)
+                    )
 
-            Spacer(modifier = Modifier.height(24.dp))
-            ShowcasePager(
-                onAppClick = onShowcaseAppClick
-            )
+                    InstallButton(
+                        installState = currentState.installState,
+                        onInstallClick = { viewModel.onInstallClick() },
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    ShowcasePager(onAppClick = onShowcaseAppClick)
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun InstallButton(
+    installState: InstallState,
+    onInstallClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onInstallClick,
+        modifier = modifier.fillMaxWidth().height(50.dp)
+    ) {
+        when (installState) {
+            is InstallState.NotInstalled -> Text("Установить")
+            is InstallState.Installing -> Text("Отменить (${installState.progress}%)")
+            is InstallState.Installed -> Text("Установлено")
         }
     }
 }

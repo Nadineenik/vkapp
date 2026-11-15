@@ -10,20 +10,19 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import com.nadinee.vkapp.presentation.applistscreen.AppListEvent
 import com.nadinee.vkapp.presentation.applistscreen.AppListState
 import com.nadinee.vkapp.presentation.applistscreen.AppListViewModel
 import com.nadinee.vkapp.presentation.model.UiAppInfo
 import kotlinx.coroutines.flow.Flow
-import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,7 +33,6 @@ fun AppListScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Обработка событий (Snackbar)
     ObserveEvents(viewModel.events, snackbarHostState)
 
     Scaffold(
@@ -47,7 +45,9 @@ fun AppListScreen(
                         imageVector = Icons.Default.Android,
                         contentDescription = "Иконка приложения",
                         tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.padding(start = 16.dp, end = 8.dp)
+                        modifier = Modifier
+                            .padding(start = 16.dp, end = 8.dp)
+                            .clickable { viewModel.clickLogo() }
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -74,24 +74,32 @@ fun AppListScreen(
                     items(currentState.apps) { app ->
                         AppListItem(
                             app = app,
-                            onClick = { onAppClick(app) }, // Теперь типы совпадают
+                            onClick = { onAppClick(app) },
                             onLogoTap = { viewModel.clickLogo() }
                         )
                     }
+                }
+            }
+
+            is AppListState.Error -> {
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "Ошибка загрузки данных", color = MaterialTheme.colorScheme.error)
                 }
             }
         }
     }
 }
 
-// Отдельная функция для обработки событий
 @Composable
 private fun ObserveEvents(
     events: Flow<AppListEvent>,
     snackbarHostState: SnackbarHostState
 ) {
     LaunchedEffect(Unit) {
-        events.collect { event ->
+        events.collectLatest { event ->
             when (event) {
                 AppListEvent.Error -> snackbarHostState.showSnackbar("Произошла ошибка")
                 AppListEvent.LogoClicked -> snackbarHostState.showSnackbar("Вы нажали на логотип приложения")
@@ -100,7 +108,7 @@ private fun ObserveEvents(
     }
 }
 
-// Карточка приложения
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppListItem(
     app: UiAppInfo,
@@ -116,17 +124,15 @@ fun AppListItem(
             modifier = Modifier.padding(16.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Используем AsyncImage для загрузки по ссылке
+
             AsyncImage(
-                model = app.iconUrl, // Ссылка из сети
+                model = app.iconUrl,
                 contentDescription = null,
                 modifier = Modifier
                     .size(48.dp)
                     .clickable { onLogoTap() },
-                contentScale = ContentScale.Crop,
-                error = painterResource(id = android.R.drawable.ic_menu_report_image)
+                contentScale = ContentScale.Crop
             )
-
             Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Text(text = app.name, fontWeight = FontWeight.Bold, fontSize = 18.sp)

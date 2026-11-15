@@ -9,6 +9,7 @@ fun DomainAppInfo.toUiModel(): UiAppInfo {
         name = this.name,
         description = this.description,
         category = this.category,
-        iconUrl = this.iconUrl
+        iconUrl = this.iconUrl,
+        rating = null
     )
 }
